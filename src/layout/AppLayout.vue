@@ -3,7 +3,7 @@ import { useLayout } from '@/layout/composables/layout';
 import { computed, onMounted, onBeforeUnmount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
-import { isAuthenticated } from '@/service/auth/auth';
+import { isAuthenticated } from '@/service/auth';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';

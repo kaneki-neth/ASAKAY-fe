@@ -5,7 +5,7 @@ import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { deleteUser } from '@/service/users/users';
+import { deleteUser } from '@/service/users';
 
 const users = ref([]);
 const filters = ref(null);
@@ -101,7 +101,7 @@ function confirmDelete(row) {
             @clear="clearFilter"
         >
             <template #empty> No users found. </template>
-            <Column field="name" header="Name" style="min-width: 12rem">
+            <Column field="name" header="Name">
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <template v-else>{{ data.name }}</template>
@@ -110,7 +110,7 @@ function confirmDelete(row) {
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
                 </template>
             </Column>
-            <Column field="email" header="Email" style="min-width: 16rem">
+            <Column field="email" header="Email">
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <template v-else>{{ data.email }}</template>
@@ -119,7 +119,7 @@ function confirmDelete(row) {
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by email" />
                 </template>
             </Column>
-            <Column header="Roles" style="min-width: 16rem">
+            <Column header="Roles">
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <div v-else class="flex flex-wrap gap-1">
@@ -128,13 +128,13 @@ function confirmDelete(row) {
                     </div>
                 </template>
             </Column>
-            <Column field="created_at" header="Created" dataType="date" style="min-width: 12rem">
+            <Column field="created_at" header="Created" dataType="date">
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <template v-else>{{ formatDate(data.created_at) }}</template>
                 </template>
             </Column>
-            <Column header="Actions" style="min-width: 14rem">
+            <Column header="Actions">
                 <template #body="{ data }">
                     <div class="flex gap-2">
                         <Button icon="pi pi-eye" outlined @click="goView(data)" />

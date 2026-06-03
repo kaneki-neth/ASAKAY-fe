@@ -1,8 +1,10 @@
-# Project Summary: Athlos Frontend
+# Project Summary: ASAKAY Frontend
 
 ## Current Status: Early Development / Foundation Established
 
-This document provides a summary of the progress made on the Athlos Frontend project as of June 3, 2026.
+ASAKAY is a web application that helps users discover how to travel to unfamiliar places using public transportation routes. A route-mapping platform that helps users find how to reach unfamiliar destinations using fixed-route public transportation such as jeepneys, buses, and vans. This frontend, built with Vue 3, provides an interactive map interface where authenticated users can draw, visualize, and search transport routes.
+
+This document provides a summary of the progress made on the ASAKAY Frontend project as of June 3, 2026.
 
 ---
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { createUser, getUser, updateUser, assignRoleToUser } from '@/service/users/users'
+import { createUser, getUser, updateUser, assignRoleToUser } from '@/service/users'
 import { useToast } from 'primevue/usetoast'
 import UserRolesManager from '@/components/UserRolesManager.vue'
 import UserRolesSelector from '@/components/UserRolesSelector.vue'

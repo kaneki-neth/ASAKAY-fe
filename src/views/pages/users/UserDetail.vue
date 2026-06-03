@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getUser } from '@/service/users/users'
+import { getUser } from '@/service/users'
 import { computed } from 'vue'
 
 const route = useRoute()

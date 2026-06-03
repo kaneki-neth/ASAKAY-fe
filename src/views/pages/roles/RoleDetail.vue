@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getRole } from '@/service/roles/roles'
+import { getRole } from '@/service/roles'
 import { computed } from 'vue'
 
 const route = useRoute()

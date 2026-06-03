@@ -1,5 +1,33 @@
-# Vue 3 + TypeScript + Vite
+# ASAKAY Frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+ASAKAY is a web application that helps users discover how to travel to unfamiliar places using public transportation routes. A route-mapping platform that helps users find how to reach unfamiliar destinations using fixed-route public transportation such as jeepneys, buses, and vans. 
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+This frontend, built with Vue 3, provides an interactive map interface where authenticated users can draw, visualize, and search transport routes.
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+## Technology Stack
+- **Frontend Framework:** Vue 3 (Composition API)
+- **Language:** TypeScript
+- **Build Tool:** Vite
+- **UI Component Library:** PrimeVue
+- **Styling:** Tailwind CSS, PrimeFlex, SASS
+- **Routing:** Vue Router
+- **HTTP Client:** Axios
+- **Charts:** Chart.js

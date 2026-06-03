@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { listUsers } from '@/service/users/users';
+import { listUsers } from '@/service/users';
 
 // Dashboard Data
 const totalUsers = ref(0);

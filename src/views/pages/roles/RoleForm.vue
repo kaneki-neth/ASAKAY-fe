@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { createRole, getRole, updateRole } from '@/service/roles/roles'
+import { createRole, getRole, updateRole } from '@/service/roles'
 import { useToast } from 'primevue/usetoast'
 import RolePermissionsManager from '@/components/RolePermissionsManager.vue'
 import RolePermissionsSelector from '@/components/RolePermissionsSelector.vue'
-import { assignPermissionToRole } from '@/service/roles/roles'
+import { assignPermissionToRole } from '@/service/roles'
 
 const route = useRoute()
 const router = useRouter()

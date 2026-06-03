@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { listRoles } from '@/service/roles/roles'
-import { assignRoleToUser, removeRoleFromUser, getUser } from '@/service/users/users'
+import { listRoles } from '@/service/roles'
+import { assignRoleToUser, removeRoleFromUser, getUser } from '@/service/users'
 
 const props = defineProps<{
   userId: string | number

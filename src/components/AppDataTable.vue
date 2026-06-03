@@ -77,3 +77,32 @@ const totalCount = computed(() => (props.loading ? 0 : props.value.length))
     Showing {{ totalCount > 0 ? first + 1 : 0 }} - {{ Math.min(first + props.rows, totalCount) }} of {{ totalCount }} items
   </div>
 </template>
+
+<style scoped>
+:deep(.p-datatable-table) {
+    table-layout: auto;
+    width: 100%;
+}
+
+:deep(.p-datatable-thead > tr > th),
+:deep(.p-datatable-tbody > tr > td) {
+    /* Set column size to only cater the width of the content */
+    width: 1px;
+    white-space: nowrap;
+
+    /* Add a minimum width if the column is empty */
+    min-width: 100px;
+
+    /* Add a limit to avoid stretching column width if the content are long */
+    max-width: 400px;
+
+    /* Standard ellipsis for long content */
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* Ensure actions column or specific wide columns can still work if they have inline styles */
+:deep(.p-datatable-tbody > tr > td.flex) {
+    width: auto;
+}
+</style>

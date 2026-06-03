@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { listPermissions } from '@/service/permissions/permissions'
+import { listPermissions } from '@/service/permissions'
 
 const props = defineProps<{
   selectedIds?: Array<number | string>
@@ -55,22 +55,22 @@ function toggle(id: number | string) {
       :rowHover="true"
       :showGridlines="true"
     >
-      <Column field="name" header="Permission" style="min-width: 16rem">
+      <Column field="name" header="Permission">
         <template #body="{ data }">
           {{ data.name }}
         </template>
       </Column>
-      <Column field="description" header="Description" style="min-width: 16rem">
+      <Column field="description" header="Description">
         <template #body="{ data }">
           {{ data.description }}
         </template>
       </Column>
-      <Column header="Selected" style="min-width: 10rem">
+      <Column header="Selected">
         <template #body="{ data }">
           <Tag :severity="isSelected(data.id) ? 'success' : 'secondary'" :value="isSelected(data.id) ? 'Yes' : 'No'" />
         </template>
       </Column>
-      <Column header="Actions" style="min-width: 14rem">
+      <Column header="Actions">
         <template #body="{ data }">
           <div class="flex gap-2">
             <Button v-if="!isSelected(data.id)" label="Add" icon="pi pi-plus" size="small" @click="toggle(data.id)" />

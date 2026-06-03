@@ -2,7 +2,7 @@
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '@/service/auth/auth';
+import { login } from '@/service/auth';
 
 const router = useRouter();
 

@@ -3,7 +3,7 @@ import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { listRoles, deleteRole } from '@/service/roles/roles'
+import { listRoles, deleteRole } from '@/service/roles'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 
 const roles = ref<any[]>([])
@@ -90,7 +90,7 @@ function confirmDeleteRow(row: any) {
       @clear="clearFilter"
     >
       <template #empty> No roles found. </template>
-      <Column field="name" header="Name" style="min-width: 12rem">
+      <Column field="name" header="Name">
         <template #body="{ data }">
           <Skeleton v-if="loading" class="block" height="1.5rem" />
           <template v-else>{{ data.name }}</template>
@@ -99,13 +99,13 @@ function confirmDeleteRow(row: any) {
           <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
         </template>
       </Column>
-      <Column field="created_at" header="Created" dataType="date" style="min-width: 12rem">
+      <Column field="created_at" header="Created" dataType="date">
         <template #body="{ data }">
           <Skeleton v-if="loading" class="block" height="1.5rem" />
           <template v-else>{{ formatDate(data.created_at) }}</template>
         </template>
       </Column>
-      <Column header="Actions" style="min-width: 14rem">
+      <Column header="Actions">
         <template #body="{ data }">
           <div class="flex gap-2">
             <Button icon="pi pi-eye" outlined @click="goView(data)" />

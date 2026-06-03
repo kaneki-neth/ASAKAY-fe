@@ -3,7 +3,7 @@ import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { logout, getProfile } from '@/service/auth/auth';
+import { logout, getProfile } from '@/service/auth';
 import Menu from 'primevue/menu';
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();

@@ -1,4 +1,4 @@
-# Gemini CLI Bootstrap
+# Gemini CLI Bootstrap: ASAKAY Frontend
 
 This file provides a standardized bootstrap process that future AI models can use when entering this project. The goal is to ensure that any future model inherits the accumulated project knowledge instead of starting from zero.
 

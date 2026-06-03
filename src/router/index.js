@@ -1,6 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { isAuthenticated } from '@/service/auth/auth'
+import { isAuthenticated } from '@/service/auth'
 
 import authRoutes from './routes/auth/auth.routes'
 import dashboardRoutes from './routes/dashboard/dashboard.routes'

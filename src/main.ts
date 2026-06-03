@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import { startSessionTimer } from '@/service/auth/auth'
+import { startSessionTimer } from '@/service/auth'
 
 import Aura from '@primevue/themes/aura'
 import PrimeVue from 'primevue/config'

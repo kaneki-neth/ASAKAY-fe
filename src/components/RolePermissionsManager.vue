@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { listPermissions } from '@/service/permissions/permissions'
-import { assignPermissionToRole, removePermissionFromRole, getRole } from '@/service/roles/roles'
+import { listPermissions } from '@/service/permissions'
+import { assignPermissionToRole, removePermissionFromRole, getRole } from '@/service/roles'
 
 const props = defineProps<{
   roleId: string | number
