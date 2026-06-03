@@ -56,9 +56,11 @@ export function stopSessionTimer() {
 	}
 }
 
-function logoutAndRedirect() {
-	logout()
-	window.location.href = '/login'
+async function logoutAndRedirect() {
+	await logout()
+	if (window.location.pathname !== '/login') {
+		window.location.href = '/login'
+	}
 }
 
 export async function login(credentials: { email: string; password: string }) {
@@ -77,14 +79,13 @@ export async function login(credentials: { email: string; password: string }) {
 
 export async function logout() {
 	stopSessionTimer()
+	localStorage.removeItem('token')
 	const { clearProfile } = usePermissions()
+	clearProfile()
 	try {
 		await api.post('/logout')
 	} catch (e) {
 		console.warn('Backend logout failed or token already invalid', e)
-	} finally {
-		localStorage.removeItem('token')
-		clearProfile()
 	}
 }
 

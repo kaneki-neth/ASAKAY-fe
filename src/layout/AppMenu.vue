@@ -13,11 +13,7 @@ const model = computed(() => [
     {
         label: 'Home',
         items: [
-            {
-                label: 'Dashboard',
-                icon: 'pi pi-fw pi-home',
-                to: '/dashboard'
-            },
+            { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/dashboard' },
             {
                 label: 'Accounts',
                 icon: 'pi pi-fw pi-user',
@@ -40,6 +36,19 @@ const model = computed(() => [
             },
         ]
     },
+    {
+        label: 'Transport',
+        visible: hasPermission('can_view_vehicles'),
+        items: [
+            {
+                label: 'Vehicles',
+                icon: 'pi pi-fw pi-car',
+                to: '/transport/vehicles',
+                visible: hasPermission('can_view_vehicles')
+            }
+        ]
+    },
+
 
     {
         label: 'Accounts',

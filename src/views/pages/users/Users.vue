@@ -3,19 +3,23 @@ import api from '@/service/api'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useConfirm } from 'primevue/useconfirm';
-import { useToast } from 'primevue/usetoast';
-import { deleteUser } from '@/service/users';
 import { usePermissions } from '@/composables/usePermissions';
+import { useAppConfirm } from '@/composables/useAppConfirm';
 
 const { hasPermission, fetchProfile } = usePermissions();
+const { confirmDelete } = useAppConfirm();
 const users = ref([]);
 const filters = ref(null);
 const loading = ref(true);
 const router = useRouter();
-const confirm = useConfirm();
-const toast = useToast();
 
+function initFilters() {
+    filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+        email: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] }
+    };
+}
 initFilters();
 
 onBeforeMount(async () => {
@@ -43,14 +47,6 @@ async function fetchUsers() {
     }
 }
 
-function initFilters() {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        email: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] }
-    };
-}
-
 function clearFilter() {
     initFilters();
 }
@@ -74,25 +70,19 @@ function goEdit(row) {
     router.push(`/accounts/users/${row.id}/edit`);
 }
 
-function confirmDelete(row) {
-    confirm.require({
-        message: 'Delete this user?',
-        header: 'Confirm',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Delete',
-        rejectLabel: 'Cancel',
-        accept: async () => {
+function confirmDeleteRow(row) {
+    confirmDelete({
+        message: `Are you sure you want to delete user "${row.name}"?`,
+        onAccept: async () => {
             loading.value = true;
             try {
-                await deleteUser(row.id);
-                toast.add({ severity: 'success', summary: 'Deleted', detail: 'User deleted', life: 2500 });
+                await api.delete(`/users/${row.id}`);
                 await fetchUsers();
-            } catch (e) {
-
             } finally {
                 loading.value = false;
             }
-        }
+        },
+        successMessage: 'User deleted successfully'
     });
 }
 </script>
@@ -109,9 +99,11 @@ function confirmDelete(row) {
             v-model:filters="filters"
             :globalFilterFields="['name', 'email']"
             @clear="clearFilter"
+            @refresh="fetchUsers"
         >
             <template #empty> No users found. </template>
-            <Column field="name" header="Name">
+            
+            <Column field="name" header="Name" sortable>
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <template v-else>{{ data.name }}</template>
@@ -120,7 +112,8 @@ function confirmDelete(row) {
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
                 </template>
             </Column>
-            <Column field="email" header="Email">
+
+            <Column field="email" header="Email" sortable>
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <template v-else>{{ data.email }}</template>
@@ -129,6 +122,7 @@ function confirmDelete(row) {
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by email" />
                 </template>
             </Column>
+
             <Column header="Roles">
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
@@ -138,22 +132,23 @@ function confirmDelete(row) {
                     </div>
                 </template>
             </Column>
-            <Column field="created_at" header="Created" dataType="date">
+
+            <Column field="created_at" header="Created" sortable dataType="date">
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
                     <template v-else>{{ formatDate(data.created_at) }}</template>
                 </template>
             </Column>
+
             <Column header="Actions">
                 <template #body="{ data }">
                     <div class="flex gap-2">
                         <Button icon="pi pi-eye" outlined @click="goView(data)" />
-                        <Button v-if="hasPermission('can_edit_users')" icon="pi pi-pencil" outlined @click="goEdit(data)" />
-                        <Button v-if="hasPermission('can_delete_users')" icon="pi pi-trash" severity="danger" outlined @click="confirmDelete(data)" />
+                        <Button v-if="hasPermission('can_edit_users')" icon="pi pi-pencil" outlined severity="success" @click="goEdit(data)" />
+                        <Button v-if="hasPermission('can_delete_users')" icon="pi pi-trash" outlined severity="danger" @click="confirmDeleteRow(data)" />
                     </div>
                 </template>
             </Column>
         </AppDataTable>
     </div>
 </template>
-

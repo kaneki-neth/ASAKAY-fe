@@ -8,6 +8,7 @@ import authRoutes from './routes/auth/auth.routes'
 import dashboardRoutes from './routes/dashboard/dashboard.routes'
 import userRoutes from './routes/users/users.routes'
 import roleRoutes from './routes/roles/roles.routes'
+import vehicleRoutes from './routes/vehicles/vehicles.routes'
 
 const router = createRouter({
         history: createWebHistory(),
@@ -17,7 +18,7 @@ const router = createRouter({
                         path: '/',
                         component: AppLayout,
                         redirect: '/dashboard',
-                        children: [...dashboardRoutes, ...userRoutes, ...roleRoutes],
+                        children: [...dashboardRoutes, ...userRoutes, ...roleRoutes, ...vehicleRoutes],
                 },
         ],
 })

@@ -15,5 +15,7 @@ export function emitError(message: string) {
 }
 
 export function emitUnauth() {
+  const event = new CustomEvent('app:unauth');
+  window.dispatchEvent(event);
   showToast({ severity: 'error', summary: 'Unauthorized', detail: 'You do not have permission to perform this action.' });
 }

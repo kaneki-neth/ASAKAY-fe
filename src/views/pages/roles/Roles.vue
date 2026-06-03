@@ -6,13 +6,14 @@ import { useToast } from 'primevue/usetoast'
 import { listRoles, deleteRole } from '@/service/roles'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import { usePermissions } from '@/composables/usePermissions'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 
 const { hasPermission, fetchProfile } = usePermissions()
+const { confirmDelete } = useAppConfirm()
 const roles = ref<any[]>([])
 const filters = ref<any>(null)
 const loading = ref<boolean>(true)
 const router = useRouter()
-const confirm = useConfirm()
 const toast = useToast()
 
 function initFilters() {
@@ -65,25 +66,21 @@ function goEdit(row: any) {
   router.push(`/accounts/roles/${row.id}/edit`)
 }
 function confirmDeleteRow(row: any) {
-  confirm.require({
-    message: 'Delete this role?',
-    header: 'Confirm',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Delete',
-    rejectLabel: 'Cancel',
-    accept: async () => {
-      loading.value = true
+  confirmDelete({
+    message: `Are you sure you want to delete role "${row.name}"?`,
+    onAccept: async () => {
+      loading.value = true;
       try {
-        await deleteRole(row.id)
-        toast.add({ severity: 'success', summary: 'Deleted', detail: 'Role deleted', life: 2500 })
-        await fetchRoles()
+        await deleteRole(row.id);
+        await fetchRoles();
       } finally {
-        loading.value = false
-        confirm.close()
+        loading.value = false;
       }
-    }
-  })
+    },
+    successMessage: 'Role deleted successfully'
+  });
 }
+
 </script>
 
 <template>
@@ -98,6 +95,7 @@ function confirmDeleteRow(row: any) {
       v-model:filters="filters"
       :globalFilterFields="['name']"
       @clear="clearFilter"
+      @refresh="fetchRoles"
     >
       <template #empty> No roles found. </template>
       <Column field="name" header="Name">

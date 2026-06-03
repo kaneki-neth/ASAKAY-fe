@@ -8,6 +8,7 @@
 ## Execution
 - **Surgical Edits:** Make precise changes focused on the task.
 - **Follow Patterns:** Adhere to existing coding standards and architectural patterns.
+- **Mandatory Shared Components:** Always use unified/shared components or composables (e.g., `useAppConfirm`, `AppDataTable`, global toasts) for generic functionality. Never create local versions of features that have a global equivalent.
 - **Maintain Integrity:** Ensure that changes don't break existing functionality.
 
 ## Verification

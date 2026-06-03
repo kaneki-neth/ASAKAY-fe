@@ -21,15 +21,16 @@ const filters = defineModel('filters', {
   })
 })
 
-const emit = defineEmits(['clear'])
+const emit = defineEmits(['clear', 'refresh'])
 
 const first = ref(0)
 
 const tableValue = computed(() => {
-  if (props.loading && props.value.length === 0) {
+  const val = Array.isArray(props.value) ? props.value : []
+  if (props.loading && val.length === 0) {
     return Array.from({ length: props.skeletonRows }, (_, i) => ({ _skeleton_id: i }))
   }
-  return props.value
+  return val
 })
 
 const displayCount = computed(() => {
@@ -54,8 +55,11 @@ const totalCount = computed(() => (props.loading ? 0 : props.value.length))
     v-model:first="first"
   >
     <template #header>
-      <div class="flex justify-between">
-        <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="emit('clear')" />
+      <div class="flex justify-between items-center">
+        <div class="flex gap-2">
+            <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="emit('clear')" />
+            <Button type="button" icon="pi pi-refresh" label="Refresh" outlined :loading="props.loading" @click="emit('refresh')" />
+        </div>
         <IconField>
           <InputIcon>
             <i class="pi pi-search" />

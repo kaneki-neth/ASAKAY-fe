@@ -3,22 +3,29 @@ import { getProfile } from '@/service/auth';
 
 const userProfile = ref<any>(null);
 const loading = ref(false);
+let fetchPromise: Promise<any> | null = null;
 
 export function usePermissions() {
     async function fetchProfile() {
         if (userProfile.value) return userProfile.value;
+        if (fetchPromise) return fetchPromise;
         
-        loading.value = true;
-        try {
-            const profile = await getProfile();
-            userProfile.value = profile;
-            return profile;
-        } catch (error) {
-            console.error('Failed to fetch profile for permissions', error);
-            return null;
-        } finally {
-            loading.value = false;
-        }
+        fetchPromise = (async () => {
+            loading.value = true;
+            try {
+                const profile = await getProfile();
+                userProfile.value = profile;
+                return profile;
+            } catch (error) {
+                console.error('Failed to fetch profile for permissions', error);
+                return null;
+            } finally {
+                loading.value = false;
+                fetchPromise = null;
+            }
+        })();
+        
+        return fetchPromise;
     }
 
     function clearProfile() {
