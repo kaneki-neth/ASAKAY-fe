@@ -107,7 +107,7 @@ onMounted(async () => {
                     </g>
                 </svg>
 
-                <span>ATHLOS</span>
+                <span>ASAKAY</span>
             </router-link>
         </div>
 
