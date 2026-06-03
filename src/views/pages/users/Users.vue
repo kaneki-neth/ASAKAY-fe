@@ -6,7 +6,9 @@ import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { deleteUser } from '@/service/users';
+import { usePermissions } from '@/composables/usePermissions';
 
+const { hasPermission, fetchProfile } = usePermissions();
 const users = ref([]);
 const filters = ref(null);
 const loading = ref(true);
@@ -17,7 +19,15 @@ const toast = useToast();
 initFilters();
 
 onBeforeMount(async () => {
-    await fetchUsers();
+    loading.value = true;
+    try {
+        await fetchProfile();
+        await fetchUsers();
+    } catch (e) {
+        console.error('Initialization error', e);
+    } finally {
+        loading.value = false;
+    }
 });
 
 async function fetchUsers() {
@@ -78,7 +88,7 @@ function confirmDelete(row) {
                 toast.add({ severity: 'success', summary: 'Deleted', detail: 'User deleted', life: 2500 });
                 await fetchUsers();
             } catch (e) {
-                
+
             } finally {
                 loading.value = false;
             }
@@ -91,7 +101,7 @@ function confirmDelete(row) {
     <div class="card">
         <div class="flex justify-between items-center mb-4">
             <div class="font-semibold text-xl">Users</div>
-            <Button label="New User" icon="pi pi-plus" @click="goCreate" />
+            <Button v-if="hasPermission('can_create_users')" label="New User" icon="pi pi-plus" @click="goCreate" />
         </div>
         <AppDataTable
             :value="users"
@@ -138,11 +148,12 @@ function confirmDelete(row) {
                 <template #body="{ data }">
                     <div class="flex gap-2">
                         <Button icon="pi pi-eye" outlined @click="goView(data)" />
-                        <Button icon="pi pi-pencil" outlined @click="goEdit(data)" />
-                        <Button icon="pi pi-trash" severity="danger" outlined @click="confirmDelete(data)" />
+                        <Button v-if="hasPermission('can_edit_users')" icon="pi pi-pencil" outlined @click="goEdit(data)" />
+                        <Button v-if="hasPermission('can_delete_users')" icon="pi pi-trash" severity="danger" outlined @click="confirmDelete(data)" />
                     </div>
                 </template>
             </Column>
         </AppDataTable>
     </div>
 </template>
+

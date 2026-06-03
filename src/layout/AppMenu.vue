@@ -1,8 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
+import { usePermissions } from '@/composables/usePermissions';
 
-const model = ref([
+const { hasPermission, fetchProfile } = usePermissions();
+
+onMounted(async () => {
+    await fetchProfile();
+});
+
+const model = computed(() => [
     {
         label: 'Home',
         items: [
@@ -14,28 +21,29 @@ const model = ref([
             {
                 label: 'Accounts',
                 icon: 'pi pi-fw pi-user',
-                path: '/accounts',
+                visible: hasPermission('can_view_users') || hasPermission('can_view_roles'),
                 items: [
                     {
                         label: 'Users',
                         icon: 'pi pi-fw pi-sign-in',
                         to: '/accounts/users',
-                        path: '/accounts/users'
+                        visible: hasPermission('can_view_users')
                     },
                     {
                         label: 'Roles',
                         icon: 'pi pi-fw pi-times-circle',
-                        to: '/accounts/roles'
+                        to: '/accounts/roles',
+                        visible: hasPermission('can_view_roles')
                     },
-                    
+
                 ]
             },
         ]
     },
-    
+
     {
         label: 'Accounts',
-        path: '/accounts',
+        visible: false, // Hidden for now as requested to focus on core RBAC
         items: [
             {
                 label: 'Table',
@@ -102,7 +110,7 @@ const model = ref([
     {
         label: 'Prime Blocks',
         icon: 'pi pi-fw pi-prime',
-        path: '/blocks',
+        visible: false,
         items: [
             {
                 label: 'Free Blocks',
@@ -120,7 +128,7 @@ const model = ref([
     {
         label: 'Pages',
         icon: 'pi pi-fw pi-briefcase',
-        path: '/pages',
+        visible: false,
         items: [
             {
                 label: 'Landing',
@@ -130,7 +138,6 @@ const model = ref([
             {
                 label: 'Auth',
                 icon: 'pi pi-fw pi-user',
-                path: '/auth',
                 items: [
                     {
                         label: 'Login',
@@ -169,17 +176,15 @@ const model = ref([
     {
         label: 'Hierarchy',
         icon: 'pi pi-fw pi-align-left',
-        path: '/hierarchy',
+        visible: false,
         items: [
             {
                 label: 'Submenu 1',
                 icon: 'pi pi-fw pi-align-left',
-                path: '/submenu_1',
                 items: [
                     {
                         label: 'Submenu 1.1',
                         icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_1_1',
                         items: [
                             {
                                 label: 'Submenu 1.1.1',
@@ -198,7 +203,6 @@ const model = ref([
                     {
                         label: 'Submenu 1.2',
                         icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_1_2',
                         items: [
                             {
                                 label: 'Submenu 1.2.1',
@@ -211,12 +215,10 @@ const model = ref([
             {
                 label: 'Submenu 2',
                 icon: 'pi pi-fw pi-align-left',
-                path: '/submenu_2',
                 items: [
                     {
                         label: 'Submenu 2.1',
                         icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_2_1',
                         items: [
                             {
                                 label: 'Submenu 2.1.1',
@@ -231,7 +233,6 @@ const model = ref([
                     {
                         label: 'Submenu 2.2',
                         icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_2_2',
                         items: [
                             {
                                 label: 'Submenu 2.2.1',
@@ -245,7 +246,7 @@ const model = ref([
     },
     {
         label: 'Get Started',
-        path: '/start',
+        visible: false,
         items: [
             {
                 label: 'Documentation',
@@ -273,3 +274,4 @@ const model = ref([
 </template>
 
 <style lang="scss" scoped></style>
+

@@ -3,9 +3,14 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getRole } from '@/service/roles'
 import { computed } from 'vue'
+import { usePermissions } from '@/composables/usePermissions'
+import { useToast } from 'primevue/usetoast'
 
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
+const { hasPermission, fetchProfile } = usePermissions()
+
 const loading = ref(true)
 const role = ref<any>(null)
 const permissions = computed(() => {
@@ -16,6 +21,13 @@ const permissions = computed(() => {
 })
 
 onMounted(async () => {
+  await fetchProfile()
+  if (!hasPermission('can_view_roles')) {
+    toast.add({ severity: 'error', summary: 'Unauthorized', detail: 'You do not have permission to view roles', life: 3000 })
+    router.push('/dashboard')
+    return
+  }
+
   try {
     const data = await getRole(route.params.id as string)
     role.value = data

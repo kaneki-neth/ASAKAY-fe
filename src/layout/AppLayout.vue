@@ -29,8 +29,13 @@ function onError(e: CustomEvent<any>) {
     toast.add({ severity: 'error', summary: 'Error', detail: msg, life: 4000 });
 }
 
+function onToast(e: CustomEvent<any>) {
+    toast.add(e.detail);
+}
+
 onMounted(() => {
     window.addEventListener('app:error', onError as EventListener);
+    window.addEventListener('app:toast', onToast as EventListener);
     window.addEventListener('app:unauth', () => {
         const route = router.currentRoute.value;
         const requiresAuth = !!route.meta?.requiresAuth;
@@ -60,5 +65,5 @@ onBeforeUnmount(() => {
         <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
     </div>
     <Toast />
-    <ConfirmDialog />
+    <ConfirmDialog :style="{ width: '450px' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" :dismissableMask="true" />
 </template>

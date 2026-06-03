@@ -3,9 +3,14 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getUser } from '@/service/users'
 import { computed } from 'vue'
+import { usePermissions } from '@/composables/usePermissions'
+import { useToast } from 'primevue/usetoast'
 
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
+const { hasPermission, fetchProfile } = usePermissions()
+
 const loading = ref(true)
 const user = ref<any>(null)
 const roles = computed(() => {
@@ -16,6 +21,13 @@ const roles = computed(() => {
 })
 
 onMounted(async () => {
+  await fetchProfile()
+  if (!hasPermission('can_view_users')) {
+    toast.add({ severity: 'error', summary: 'Unauthorized', detail: 'You do not have permission to view users', life: 3000 })
+    router.push('/dashboard')
+    return
+  }
+
   try {
     const data = await getUser(route.params.id as string)
     user.value = data
@@ -68,7 +80,7 @@ function edit() {
       <div class="mt-4">
         <div class="flex gap-2">
           <Button label="Back" icon="pi pi-arrow-left" outlined @click="back" />
-          <Button label="Edit" icon="pi pi-pencil" @click="edit" />
+          <Button v-if="hasPermission('can_edit_users')" label="Edit" icon="pi pi-pencil" @click="edit" />
         </div>
       </div>
     </div>

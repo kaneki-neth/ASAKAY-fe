@@ -5,7 +5,9 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { listRoles, deleteRole } from '@/service/roles'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
+import { usePermissions } from '@/composables/usePermissions'
 
+const { hasPermission, fetchProfile } = usePermissions()
 const roles = ref<any[]>([])
 const filters = ref<any>(null)
 const loading = ref<boolean>(true)
@@ -22,7 +24,15 @@ function initFilters() {
 initFilters()
 
 onBeforeMount(async () => {
-  await fetchRoles()
+  loading.value = true
+  try {
+    await fetchProfile()
+    await fetchRoles()
+  } catch (e) {
+    console.error('Initialization error', e)
+  } finally {
+    loading.value = false
+  }
 })
 
 async function fetchRoles() {
@@ -80,7 +90,7 @@ function confirmDeleteRow(row: any) {
   <div class="card">
     <div class="flex justify-between items-center mb-4">
       <div class="font-semibold text-xl">Roles</div>
-      <Button label="New Role" icon="pi pi-plus" @click="goCreate" />
+      <Button v-if="hasPermission('can_create_roles')" label="New Role" icon="pi pi-plus" @click="goCreate" />
     </div>
     <AppDataTable
       :value="roles"
@@ -109,13 +119,11 @@ function confirmDeleteRow(row: any) {
         <template #body="{ data }">
           <div class="flex gap-2">
             <Button icon="pi pi-eye" outlined @click="goView(data)" />
-            <Button icon="pi pi-pencil" outlined @click="goEdit(data)" />
-            <Button icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteRow(data)" />
+            <Button v-if="hasPermission('can_edit_roles')" icon="pi pi-pencil" outlined @click="goEdit(data)" />
+            <Button v-if="hasPermission('can_delete_roles')" icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteRow(data)" />
           </div>
         </template>
       </Column>
     </AppDataTable>
   </div>
-  <Toast />
-  <ConfirmDialog />
-  </template>
+</template>

@@ -5,10 +5,12 @@ import { createUser, getUser, updateUser, assignRoleToUser } from '@/service/use
 import { useToast } from 'primevue/usetoast'
 import UserRolesManager from '@/components/UserRolesManager.vue'
 import UserRolesSelector from '@/components/UserRolesSelector.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const { hasPermission, fetchProfile } = usePermissions()
 
 const id = computed(() => route.params.id as string | undefined)
 const isCreate = computed(() => !id.value)
@@ -18,6 +20,7 @@ const errors = ref<Record<string, string>>({})
 const selectedRoleIds = ref<Array<number | string>>([])
 
 onMounted(async () => {
+  await fetchProfile()
   if (id.value) {
     loading.value = true
     try {
@@ -185,8 +188,6 @@ function cancel() {
       </form>
     </div>
   </div>
-  <Toast />
-  <ConfirmDialog />
   <div v-if="id" class="mt-4 mx-auto">
     <UserRolesManager :user-id="id as string" />
   </div>

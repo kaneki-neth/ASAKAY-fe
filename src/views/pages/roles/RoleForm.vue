@@ -6,10 +6,12 @@ import { useToast } from 'primevue/usetoast'
 import RolePermissionsManager from '@/components/RolePermissionsManager.vue'
 import RolePermissionsSelector from '@/components/RolePermissionsSelector.vue'
 import { assignPermissionToRole } from '@/service/roles'
+import { usePermissions } from '@/composables/usePermissions'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const { hasPermission, fetchProfile } = usePermissions()
 
 const id = computed(() => route.params.id as string | undefined)
 const isCreate = computed(() => !id.value)
@@ -19,6 +21,8 @@ const errors = ref<Record<string, string>>({})
 const selectedPermissionIds = ref<Array<number | string>>([])
 
 onMounted(async () => {
+  await fetchProfile()
+
   if (id.value) {
     loading.value = true
     try {
@@ -111,8 +115,6 @@ function cancel() {
       <Button label="Cancel" icon="pi pi-times" severity="secondary" outlined @click="cancel" />
     </div>
   </div>
-  <Toast />
-  <ConfirmDialog />
   <div v-if="id" class="mt-4 mx-auto">
     <RolePermissionsManager :role-id="id as string" />
   </div>

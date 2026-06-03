@@ -1,4 +1,5 @@
 import api from '../api'
+import { usePermissions } from '@/composables/usePermissions'
 
 let sessionTimeout: ReturnType<typeof setTimeout> | undefined
 
@@ -74,15 +75,22 @@ export async function login(credentials: { email: string; password: string }) {
 	return res.data
 }
 
-export function logout() {
+export async function logout() {
 	stopSessionTimer()
-	localStorage.removeItem('token')
-	return api.post('/logout')
+	const { clearProfile } = usePermissions()
+	try {
+		await api.post('/logout')
+	} catch (e) {
+		console.warn('Backend logout failed or token already invalid', e)
+	} finally {
+		localStorage.removeItem('token')
+		clearProfile()
+	}
 }
 
 export async function getProfile() {
 	const res = await api.get('/me')
-	return res.data
+	return res.data?.data ?? res.data
 }
 
 export function isAuthenticated() {

@@ -1,6 +1,8 @@
 import AppLayout from '@/layout/AppLayout.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'      
 import { isAuthenticated } from '@/service/auth'
+import { usePermissions } from '@/composables/usePermissions'
+import { showToast } from '@/service/toast'
 
 import authRoutes from './routes/auth/auth.routes'
 import dashboardRoutes from './routes/dashboard/dashboard.routes'
@@ -8,32 +10,56 @@ import userRoutes from './routes/users/users.routes'
 import roleRoutes from './routes/roles/roles.routes'
 
 const router = createRouter({
-	history: createWebHistory(),
-	routes: [
-		...authRoutes,
-		{
-			path: '/',
-			component: AppLayout,
-			redirect: '/dashboard',
-			children: [...dashboardRoutes, ...userRoutes, ...roleRoutes],
-		},
-	],
+        history: createWebHistory(),
+        routes: [
+                ...authRoutes,
+                {
+                        path: '/',
+                        component: AppLayout,
+                        redirect: '/dashboard',
+                        children: [...dashboardRoutes, ...userRoutes, ...roleRoutes],
+                },
+        ],
 })
 
-router.beforeEach((to, from, next) => {
-	const authenticated = isAuthenticated()
+router.beforeEach(async (to, from, next) => {
+        const authenticated = isAuthenticated()
+        const { fetchProfile, hasPermission } = usePermissions()
 
-	if (to.meta.requiresAuth && !authenticated) {
-		next('/login')
-	} else if (to.path === '/login' && authenticated) {
-		next('/dashboard')
-	} else {
-		next()
-	}
+        if (to.meta.requiresAuth && !authenticated) {
+                next('/login')
+                return
+        } 
+
+        if (to.path === '/login' && authenticated) {
+                next('/dashboard')
+                return
+        }
+
+        if (authenticated) {
+            await fetchProfile()
+            if (to.meta.permission && !hasPermission(to.meta.permission)) {
+                showToast({
+                    severity: 'error',
+                    summary: 'Unauthorized',
+                    detail: `You do not have permission to access this page.`,
+                    life: 3000
+                })
+                
+                // If we have a previous page, go back, otherwise go to dashboard
+                if (from.path && from.path !== to.path && from.path !== '/') {
+                    next(false)
+                } else {
+                    next('/dashboard')
+                }
+                return
+            }
+        }
+
+        next()
 })
 
 export default router
-
 // const router = createRouter({
 //     history: createWebHistory(),
 //     routes: [
