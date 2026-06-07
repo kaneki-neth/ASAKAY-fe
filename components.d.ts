@@ -20,6 +20,7 @@ declare module 'vue' {
     Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    Dialog: typeof import('primevue/dialog')['default']
     Dropdown: typeof import('primevue/dropdown')['default']
     FeaturesWidget: typeof import('./src/components/landing/FeaturesWidget.vue')['default']
     FloatingConfigurator: typeof import('./src/components/FloatingConfigurator.vue')['default']

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getVehicle } from '@/service/vehicles'
+import { getVehicle } from '@/service/vehicles/vehicles'
 import { usePermissions } from '@/composables/usePermissions'
 
 const route = useRoute()
@@ -38,10 +38,11 @@ function formatDate(value: any) {
 }
 
 function getStatusSeverity(status: string) {
-    switch (status) {
-        case 'Active': return 'success'
-        case 'Inactive': return 'danger'
-        case 'Maintenance': return 'warn'
+    if (!status) return null
+    switch (status.toLowerCase()) {
+        case 'active': return 'success'
+        case 'inactive': return 'danger'
+        case 'maintenance': return 'warn'
         default: return null
     }
 }
@@ -51,7 +52,7 @@ function getStatusSeverity(status: string) {
     <div class="card mx-auto">
         <div class="flex justify-between items-center mb-4">
             <div class="font-semibold text-xl">Vehicle Details</div>
-            <Tag v-if="vehicle" :value="vehicle.status" :severity="getStatusSeverity(vehicle.status)" />
+            <Tag v-if="vehicle" :value="vehicle.status || '-'" :severity="getStatusSeverity(vehicle.status)" />
         </div>
 
         <div v-if="loading" class="space-y-4">
@@ -65,24 +66,24 @@ function getStatusSeverity(status: string) {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col gap-1">
                     <span class="text-gray-500 text-sm">Vehicle Name</span>
-                    <span class="font-medium text-lg">{{ vehicle.name }}</span>
+                    <span class="font-medium text-lg">{{ vehicle.name || '-' }}</span>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-gray-500 text-sm">Vehicle Code</span>
-                    <span class="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-primary w-fit">{{ vehicle.code }}</span>
+                    <span class="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-primary w-fit">{{ vehicle.code || '-' }}</span>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-gray-500 text-sm">Transport Type</span>
-                    <span class="font-medium">{{ vehicle.type }}</span>
+                    <span class="font-medium">{{ vehicle.vehicle_type ? vehicle.vehicle_type.name : '-' }}</span>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-gray-500 text-sm">Created By</span>
-                    <span class="font-medium">{{ vehicle.creator?.name || 'System' }}</span>
+                    <span class="font-medium">{{ vehicle.creator?.name || '-' }}</span>
                 </div>
                 <div class="flex flex-col gap-1 md:col-span-2">
                     <span class="text-gray-500 text-sm">Description</span>
                     <p class="mt-1 leading-relaxed text-gray-700 dark:text-gray-300">
-                        {{ vehicle.description || 'No description provided.' }}
+                        {{ vehicle.description || '-' }}
                     </p>
                 </div>
                 <div class="flex flex-col gap-1">

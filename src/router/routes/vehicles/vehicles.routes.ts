@@ -23,4 +23,10 @@ export default [
                 component: () => import('@/views/pages/vehicles/VehicleForm.vue'),
                 meta: { requiresAuth: true, permission: 'can_edit_vehicles' },
         },
+        {
+                path: '/transport/vehicle-types',
+                name: 'vehicle-types',
+                component: () => import('@/views/pages/vehicles/VehicleTypes.vue'),
+                meta: { requiresAuth: true, permission: 'vehicle-type.view' },
+        },
 ]

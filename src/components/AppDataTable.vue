@@ -55,10 +55,11 @@ const totalCount = computed(() => (props.loading ? 0 : props.value.length))
     v-model:first="first"
   >
     <template #header>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center gap-4">
         <div class="flex gap-2">
             <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="emit('clear')" />
             <Button type="button" icon="pi pi-refresh" label="Refresh" outlined :loading="props.loading" @click="emit('refresh')" />
+            <slot name="actions" />
         </div>
         <IconField>
           <InputIcon>

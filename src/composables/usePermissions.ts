@@ -50,18 +50,27 @@ export function usePermissions() {
         return Array.from(perms);
     });
 
+    const isSuperAdmin = computed(() => {
+        if (!userProfile.value) return false;
+        const roles = userProfile.value.roles || [];
+        return roles.some((role: any) => role.name === 'Super Admin');
+    });
+
     function hasPermission(permission: string) {
         if (!permission) return true;
+        if (isSuperAdmin.value) return true;
         return permissions.value.includes(permission);
     }
 
     function hasAnyPermission(perms: string[]) {
         if (!perms || perms.length === 0) return true;
+        if (isSuperAdmin.value) return true;
         return perms.some(p => permissions.value.includes(p));
     }
 
     function hasAllPermissions(perms: string[]) {
         if (!perms || perms.length === 0) return true;
+        if (isSuperAdmin.value) return true;
         return perms.every(p => permissions.value.includes(p));
     }
 
@@ -71,6 +80,7 @@ export function usePermissions() {
         fetchProfile,
         clearProfile,
         permissions,
+        isSuperAdmin,
         hasPermission,
         hasAnyPermission,
         hasAllPermissions

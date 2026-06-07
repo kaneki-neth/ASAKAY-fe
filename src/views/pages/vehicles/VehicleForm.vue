@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { createVehicle, getVehicle, updateVehicle } from '@/service/vehicles'
+import { createVehicle, getVehicle, updateVehicle, getVehicleTypeOptions } from '@/service/vehicles/vehicles'
 import { useToast } from 'primevue/usetoast'
 import { usePermissions } from '@/composables/usePermissions'
 
@@ -14,11 +14,7 @@ const id = computed(() => route.params.id as string | undefined)
 const isCreate = computed(() => !id.value)
 const loading = ref(false)
 
-const vehicleTypes = [
-    { label: 'Jeepney', value: 'jeepney' },
-    { label: 'Bus', value: 'bus' },
-    { label: 'Van', value: 'van' }
-]
+const vehicleTypes = ref<{ id: number, name: string }[]>([])
 
 const statuses = [
     { label: 'Active', value: 'active' },
@@ -28,7 +24,7 @@ const statuses = [
 const form = ref({
     name: '',
     code: '',
-    type: null,
+    vehicle_type_id: null as number | null,
     status: 'active',
     description: ''
 })
@@ -38,6 +34,12 @@ const errors = ref<Record<string, string>>({})
 onMounted(async () => {
     await fetchProfile()
     
+    try {
+        vehicleTypes.value = await getVehicleTypeOptions()
+    } catch (e) {
+        console.error('Failed to load vehicle types', e)
+    }
+    
     if (id.value) {
         loading.value = true
         try {
@@ -45,7 +47,7 @@ onMounted(async () => {
             form.value = {
                 name: data?.name ?? '',
                 code: data?.code ?? '',
-                type: data?.type ?? null,
+                vehicle_type_id: data?.vehicle_type_id ?? null,
                 status: data?.status ?? 'active',
                 description: data?.description ?? ''
             }
@@ -60,8 +62,7 @@ onMounted(async () => {
 function validate() {
     errors.value = {}
     if (!form.value.name?.trim()) errors.value.name = 'Name is required'
-    if (!form.value.code?.trim()) errors.value.code = 'Code is required'
-    if (!form.value.type) errors.value.type = 'Vehicle type is required'
+    if (!form.value.vehicle_type_id) errors.value.vehicle_type_id = 'Vehicle type is required'
     if (!form.value.status) errors.value.status = 'Status is required'
     
     return Object.keys(errors.value).length === 0
@@ -122,9 +123,9 @@ function cancel() {
             </div>
 
             <div class="flex flex-col gap-2">
-                <label for="type">Type</label>
-                <Select id="type" v-model="form.type" :options="vehicleTypes" optionLabel="label" optionValue="value" placeholder="Select Type" :class="{'p-invalid': errors.type}" @change="clearError('type')" />
-                <small v-if="errors.type" class="p-error">{{ errors.type }}</small>
+                <label for="vehicle_type_id">Type</label>
+                <Select id="vehicle_type_id" v-model="form.vehicle_type_id" :options="vehicleTypes" optionLabel="name" optionValue="id" placeholder="Select Type" :class="{'p-invalid': errors.vehicle_type_id}" @change="clearError('vehicle_type_id')" />
+                <small v-if="errors.vehicle_type_id" class="p-error">{{ errors.vehicle_type_id }}</small>
             </div>
 
             <div class="flex flex-col gap-2">

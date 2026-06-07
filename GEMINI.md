@@ -92,6 +92,8 @@ To maintain UI/UX consistency across the application, **always** prioritize usin
 - **Confirmation Modals:** Always use the `useAppConfirm` composable (`src/composables/useAppConfirm.ts`) for delete or sensitive action confirmations. **Never** use `confirm.require` or local dialogs directly in pages.
 - **Toast Notifications:** Always use the global toast system. If a helper or event-based toast trigger exists, use it instead of local PrimeVue `useToast` calls where possible to ensure consistent formatting.
 - **Data Tables:** Always use the `AppDataTable` component (`src/components/AppDataTable.vue`) for lists and data displays.
-- **Future Components:** Before creating any new UI component (e.g., Modals, Drawers, Pickers, Wrappers), check if a shared version exists. If the component is likely to be reused, it **must** be implemented as a shared component in `src/components/` or a shared composable in `src/composables/`.
+- **Empty Values:** Always use a dash (`"-"`) as the default display value for empty strings, nulls, or undefined fields in tables and detail views. Never leave a field completely empty (e.g., use `{{ data.field || '-' }}`).
+- **Future Components:** Before creating any new UI component (e.g., Modals, Drawers, Pickers, Wrappers), check if a shared version exists.
+ If the component is likely to be reused, it **must** be implemented as a shared component in `src/components/` or a shared composable in `src/composables/`.
 
 When implementing a new module, check `src/components/` and `src/composables/` for existing patterns before creating local ones. AI agents must strictly follow these established standards for all future tasks.

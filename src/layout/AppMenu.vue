@@ -38,13 +38,19 @@ const model = computed(() => [
     },
     {
         label: 'Transport',
-        visible: hasPermission('can_view_vehicles'),
+        visible: hasPermission('can_view_vehicles') || hasPermission('vehicle-type.view'),
         items: [
             {
                 label: 'Vehicles',
                 icon: 'pi pi-fw pi-car',
                 to: '/transport/vehicles',
                 visible: hasPermission('can_view_vehicles')
+            },
+            {
+                label: 'Vehicle Types',
+                icon: 'pi pi-fw pi-tags',
+                to: '/transport/vehicle-types',
+                visible: hasPermission('vehicle-type.view')
             }
         ]
     },

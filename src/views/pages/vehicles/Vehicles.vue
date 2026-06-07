@@ -3,7 +3,7 @@ import { onBeforeMount, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { listVehicles, deleteVehicle } from '@/service/vehicles';
+import { listVehicles, deleteVehicle, getVehicleTypeOptions } from '@/service/vehicles/vehicles';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { usePermissions } from '@/composables/usePermissions';
 import { useAppConfirm } from '@/composables/useAppConfirm';
@@ -16,11 +16,7 @@ const loading = ref(true);
 const router = useRouter();
 const toast = useToast();
 
-const vehicleTypes = [
-    { label: 'Jeepney', value: 'jeepney' },
-    { label: 'Bus', value: 'bus' },
-    { label: 'Van', value: 'van' }
-];
+const vehicleTypes = ref([]);
 
 const statuses = [
     { label: 'Active', value: 'active' },
@@ -32,7 +28,7 @@ function initFilters() {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
         code: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
-        type: { value: null, matchMode: FilterMatchMode.EQUALS },
+        vehicle_type_id: { value: null, matchMode: FilterMatchMode.EQUALS },
         status: { value: null, matchMode: FilterMatchMode.EQUALS }
     };
 }
@@ -42,6 +38,13 @@ onBeforeMount(async () => {
     loading.value = true;
     try {
         await fetchProfile();
+        
+        // Fetch vehicle types for the filter dropdown
+        const typesData = await getVehicleTypeOptions();
+        if (Array.isArray(typesData)) {
+            vehicleTypes.value = typesData;
+        }
+        
         await fetchVehicleList();
     } catch (e) {
         console.error('Initialization error', e);
@@ -81,6 +84,11 @@ function getStatusSeverity(status) {
         default:
             return null;
     }
+}
+
+function getTypeName(id) {
+    const type = vehicleTypes.value.find(t => t.id === id);
+    return type ? type.name : 'Unknown';
 }
 
 function goCreate() {
@@ -130,7 +138,7 @@ function confirmDeleteRow(row) {
             <Column field="name" header="Name" sortable>
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
-                    <template v-else>{{ data.name }}</template>
+                    <template v-else>{{ data.name || '-' }}</template>
                 </template>
                 <template #filter="{ filterModel }">
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
@@ -140,27 +148,29 @@ function confirmDeleteRow(row) {
             <Column field="code" header="Code" sortable>
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
-                    <template v-else>{{ data.code }}</template>
+                    <template v-else>{{ data.code || '-' }}</template>
                 </template>
                 <template #filter="{ filterModel }">
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by code" />
                 </template>
             </Column>
 
-            <Column field="type" header="Type" sortable>
+            <Column field="vehicle_type_id" header="Type" sortable>
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
-                    <template v-else>{{ data.type }}</template>
+                    <template v-else>
+                        {{ data.vehicle_type ? data.vehicle_type.name : (getTypeName(data.vehicle_type_id) || '-') }}
+                    </template>
                 </template>
                 <template #filter="{ filterModel }">
-                    <Select v-model="filterModel.value" :options="vehicleTypes" optionLabel="label" optionValue="value" placeholder="Select a Type" showClear />
+                    <Select v-model="filterModel.value" :options="vehicleTypes" optionLabel="name" optionValue="id" placeholder="Select a Type" showClear />
                 </template>
             </Column>
 
             <Column field="status" header="Status" sortable>
                 <template #body="{ data }">
                     <Skeleton v-if="loading" class="block" height="1.5rem" />
-                    <Tag v-else :value="data.status" :severity="getStatusSeverity(data.status)" />
+                    <Tag v-else :value="data.status || '-'" :severity="getStatusSeverity(data.status)" />
                 </template>
                 <template #filter="{ filterModel }">
                     <Select v-model="filterModel.value" :options="statuses" optionLabel="label" optionValue="value" placeholder="Select a Status" showClear />
