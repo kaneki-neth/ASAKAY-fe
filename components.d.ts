@@ -49,6 +49,7 @@ declare module 'vue' {
     Tag: typeof import('primevue/tag')['default']
     Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     TopbarWidget: typeof import('./src/components/landing/TopbarWidget.vue')['default']
     UserRolesManager: typeof import('./src/components/UserRolesManager.vue')['default']
     UserRolesSelector: typeof import('./src/components/UserRolesSelector.vue')['default']

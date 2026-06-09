@@ -19,9 +19,11 @@ const id = computed(() => route.params.id as string | undefined)
 const isCreate = computed(() => !id.value)
 const loading = ref(false)
 const saving = ref(false)
+const snapToRoad = ref(true)
 
 const vehicleTypes = ref<any[]>([])
 const availableStops = ref<any[]>([])
+const suggestedStops = ref<any[]>([])
 
 const form = ref({
     name: '',
@@ -33,7 +35,34 @@ const form = ref({
     stops: [] as any[] // Sequenced stops
 })
 
+// Points actually clicked by the user (for undo/logic)
+const userClicks = ref<{ lat: number, lng: number }[]>([])
+
 const errors = ref<Record<string, string>>({})
+
+// Helper for coordinate distance (meters)
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371e3 // Earth radius in meters
+    const φ1 = (lat1 * Math.PI) / 180
+    const φ2 = (lat2 * Math.PI) / 180
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+    return R * c
+}
+
+// Check if a point is near the route polyline
+function isPointNearRoute(lat: number, lng: number, thresholdMeters = 500) {
+    if (form.value.polyline.length === 0) return false
+    
+    // Check distance to every point in high-res polyline
+    return form.value.polyline.some(p => getDistance(lat, lng, p.lat, p.lng) <= thresholdMeters)
+}
 
 // Map related
 const mapContainer = ref<HTMLElement | null>(null)
@@ -63,6 +92,8 @@ async function loadData() {
                 polyline: data.polyline || [],
                 stops: data.stops || []
             }
+            // For existing routes, we treat the saved polyline as the clicks for now
+            userClicks.value = data.polyline || []
         }
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load data', life: 3000 })
@@ -106,36 +137,96 @@ function initMap() {
 
     polylineLayer = L.polyline([], { color: form.value.color }).addTo(mapInstance)
 
-    mapInstance.on('click', (e: any) => {
+    mapInstance.on('click', async (e: any) => {
         const newPoint = { lat: e.latlng.lat, lng: e.latlng.lng }
-        form.value.polyline.push(newPoint)
-        updateMapElements()
+        userClicks.value.push(newPoint)
+        await recalculatePath()
     })
 
     updateMapElements()
 }
 
+async function recalculatePath() {
+    if (userClicks.value.length === 0) {
+        form.value.polyline = []
+        updateMapElements()
+        return
+    }
+
+    if (userClicks.value.length === 1) {
+        form.value.polyline = [...userClicks.value]
+        updateMapElements()
+        return
+    }
+
+    if (!snapToRoad.value) {
+        form.value.polyline = [...userClicks.value]
+    } else {
+        // Fetch from OSRM
+        try {
+            const coords = userClicks.value.map(p => `${p.lng},${p.lat}`).join(';')
+            const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`)
+            const data = await res.json()
+            
+            if (data.routes && data.routes.length > 0) {
+                // Convert GeoJSON [lng, lat] to {lat, lng}
+                form.value.polyline = data.routes[0].geometry.coordinates.map((c: any) => ({
+                    lat: c[1],
+                    lng: c[0]
+                }))
+            } else {
+                // Fallback to linear if OSRM fails
+                form.value.polyline = [...userClicks.value]
+            }
+        } catch (e) {
+            console.error('OSRM Fetch Error:', e)
+            form.value.polyline = [...userClicks.value]
+        }
+    }
+    updateMapElements()
+    detectSuggestedStops()
+}
+
+function undoLastPoint() {
+    userClicks.value.pop()
+    recalculatePath()
+}
+
 function updateMapElements() {
     if (!mapInstance || !polylineLayer) return
+
+    // Ensure color has # prefix for Leaflet
+    let color = form.value.color || '#3B82F6'
+    if (!color.startsWith('#')) {
+        color = '#' + color
+    }
 
     // Update Polyline
     const path = form.value.polyline.map(p => [p.lat, p.lng])
     polylineLayer.setLatLngs(path)
-    polylineLayer.setStyle({ color: form.value.color })
+    polylineLayer.setStyle({ color: color })
 
-    // Update Point Markers
+    // Update Point Markers (Only for actual clicks to keep map clean)
     pointMarkers.forEach(m => m.remove())
     pointMarkers = []
-    form.value.polyline.forEach((p, index) => {
-        const m = L.circleMarker([p.lat, p.lng], { 
-            radius: 5, 
-            color: 'white', 
-            fillColor: form.value.color, 
-            fillOpacity: 1,
-            weight: 2
+    userClicks.value.forEach((p, index) => {
+        const m = L.marker([p.lat, p.lng], { 
+            draggable: true,
+            icon: L.divIcon({
+                className: 'custom-anchor-icon',
+                html: `<div style="background-color: #EF4444; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3);"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+            })
         }).addTo(mapInstance)
         
-        m.bindPopup(`Point ${index + 1} <br/> <button class="p-button p-button-text p-button-sm text-red-500" onclick="window.removeRoutePoint(${index})">Remove</button>`)
+        m.on('dragend', async (event: any) => {
+            const newPos = event.target.getLatLng()
+            userClicks.value[index] = { lat: newPos.lat, lng: newPos.lng }
+            await recalculatePath()
+        })
+
+        m.bindPopup(`Anchor ${index + 1} <br/> <button class="p-button p-button-text p-button-sm text-red-500" onclick="window.removeRoutePoint(${index})">Remove Anchor</button>`)
         pointMarkers.push(m)
     })
 
@@ -146,7 +237,7 @@ function updateMapElements() {
         const m = L.marker([stop.latitude, stop.longitude], {
             icon: L.divIcon({
                 className: 'custom-stop-icon',
-                html: `<div style="background-color: white; border: 2px solid ${form.value.color}; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; color: ${form.value.color}">${index + 1}</div>`,
+                html: `<div style="background-color: white; border: 2px solid ${color}; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; color: ${color}">${index + 1}</div>`,
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
             })
@@ -157,25 +248,57 @@ function updateMapElements() {
 
     // Expose remove function to window for the popup
     ;(window as any).removeRoutePoint = (index: number) => {
-        form.value.polyline.splice(index, 1)
-        updateMapElements()
+        userClicks.value.splice(index, 1)
+        recalculatePath()
     }
 }
 
+function detectSuggestedStops() {
+    if (form.value.polyline.length === 0) {
+        suggestedStops.value = []
+        return
+    }
+
+    // Find stops within 100m of the path that aren't already added
+    const currentStopIds = form.value.stops.map(s => s.id)
+    suggestedStops.value = availableStops.value.filter(stop => {
+        if (currentStopIds.includes(stop.id)) return false
+        return isPointNearRoute(stop.latitude, stop.longitude, 100)
+    })
+}
+
 function clearPath() {
+    userClicks.value = []
     form.value.polyline = []
+    suggestedStops.value = []
     updateMapElements()
 }
 
 function addStopToRoute(stop: any) {
-    if (!form.value.stops.find(s => s.id === stop.id)) {
-        form.value.stops.push(stop)
-        updateMapElements()
+    if (!stop) return
+
+    // 1. Check if already added
+    if (form.value.stops.find(s => s.id === stop.id)) return
+
+    // 2. Validate distance from route (Allow 500m margin)
+    if (!isPointNearRoute(stop.latitude, stop.longitude, 500)) {
+        toast.add({ 
+            severity: 'warn', 
+            summary: 'Stop Too Far', 
+            detail: `"${stop.name}" is not along the drawn route path. Please add stops that are relevant to this area.`,
+            life: 5000 
+        })
+        return
     }
+
+    form.value.stops.push(stop)
+    detectSuggestedStops()
+    updateMapElements()
 }
 
 function removeStopFromRoute(index: number) {
     form.value.stops.splice(index, 1)
+    detectSuggestedStops()
     updateMapElements()
 }
 
@@ -291,16 +414,42 @@ function cancel() {
                         <label class="text-xs font-bold text-gray-500 uppercase">Available Stops</label>
                         <Select :options="availableStops" filter optionLabel="name" placeholder="Search and add a stop" class="w-full mt-1" @change="(e) => addStopToRoute(e.value)" />
                     </div>
+
+                    <!-- Suggested Stops Section -->
+                    <div v-if="suggestedStops.length > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <label class="text-xs font-bold text-primary uppercase flex items-center gap-1">
+                            <i class="pi pi-sparkles"></i> Suggested Stops
+                        </label>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <Button 
+                                v-for="stop in suggestedStops" 
+                                :key="stop.id" 
+                                :label="stop.name" 
+                                icon="pi pi-plus" 
+                                size="small" 
+                                severity="success" 
+                                outlined 
+                                @click="addStopToRoute(stop)" 
+                            />
+                        </div>
+                        <small class="text-gray-500 mt-1 block">Found these stops along your drawn path.</small>
+                    </div>
                 </div>
             </div>
 
             <!-- Right: Map and Pathing -->
             <div class="xl:col-span-2 flex flex-col gap-4">
                 <div class="flex justify-between items-center">
-                    <label class="font-semibold">Route Path Drawing</label>
+                    <div class="flex items-center gap-4">
+                        <label class="font-semibold text-lg text-primary">Route Path Drawing</label>
+                        <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700">
+                            <span class="text-xs font-bold uppercase text-gray-500">Snap to Road</span>
+                            <ToggleSwitch v-model="snapToRoad" @change="recalculatePath" />
+                        </div>
+                    </div>
                     <div class="flex gap-2">
                         <Button label="Clear Path" icon="pi pi-trash" severity="secondary" text size="small" @click="clearPath" />
-                        <Button label="Undo Last Point" icon="pi pi-undo" severity="secondary" text size="small" :disabled="form.polyline.length === 0" @click="form.polyline.pop(); updateMapElements()" />
+                        <Button label="Undo" icon="pi pi-undo" severity="secondary" text size="small" :disabled="userClicks.length === 0" @click="undoLastPoint" />
                     </div>
                 </div>
                 
