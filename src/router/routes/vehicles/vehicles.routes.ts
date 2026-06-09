@@ -29,4 +29,34 @@ export default [
                 component: () => import('@/views/pages/vehicles/VehicleTypes.vue'),
                 meta: { requiresAuth: true, permission: 'vehicle-type.view' },
         },
+        {
+                path: '/transport/stops',
+                name: 'stops',
+                component: () => import('@/views/pages/vehicles/Stops.vue'),
+                meta: { requiresAuth: true, permission: 'stop.view' },
+        },
+        {
+                path: '/transport/routes',
+                name: 'routes',
+                component: () => import('@/views/pages/vehicles/Routes.vue'),
+                meta: { requiresAuth: true, permission: 'route.view' },
+        },
+        {
+                path: '/transport/routes/new',
+                name: 'route-new',
+                component: () => import('@/views/pages/vehicles/RouteForm.vue'),
+                meta: { requiresAuth: true, permission: 'route.create' },
+        },
+        {
+                path: '/transport/routes/:id/edit',
+                name: 'route-edit',
+                component: () => import('@/views/pages/vehicles/RouteForm.vue'),
+                meta: { requiresAuth: true, permission: 'route.update' },
+        },
+        {
+                path: '/transport/navigator',
+                name: 'navigator',
+                component: () => import('@/views/pages/vehicles/Navigator.vue'),
+                meta: { requiresAuth: true },
+        },
 ]

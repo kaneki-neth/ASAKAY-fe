@@ -38,7 +38,7 @@ const model = computed(() => [
     },
     {
         label: 'Transport',
-        visible: hasPermission('can_view_vehicles') || hasPermission('vehicle-type.view'),
+        visible: hasPermission('can_view_vehicles') || hasPermission('vehicle-type.view') || hasPermission('stop.view') || hasPermission('route.view'),
         items: [
             {
                 label: 'Vehicles',
@@ -51,6 +51,23 @@ const model = computed(() => [
                 icon: 'pi pi-fw pi-tags',
                 to: '/transport/vehicle-types',
                 visible: hasPermission('vehicle-type.view')
+            },
+            {
+                label: 'Stops',
+                icon: 'pi pi-fw pi-map-marker',
+                to: '/transport/stops',
+                visible: hasPermission('stop.view')
+            },
+            {
+                label: 'Routes',
+                icon: 'pi pi-fw pi-map',
+                to: '/transport/routes',
+                visible: hasPermission('route.view')
+            },
+            {
+                label: 'Navigator',
+                icon: 'pi pi-fw pi-compass',
+                to: '/transport/navigator'
             }
         ]
     },

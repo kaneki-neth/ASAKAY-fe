@@ -8,9 +8,6 @@ import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig({
-    optimizeDeps: {
-        noDiscovery: true
-    },
     plugins: [
         vue(),
         tailwindcss(),
