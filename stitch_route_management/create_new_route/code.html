@@ -1,0 +1,252 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ASAKAY - Create Route</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1b21",
+                        "on-surface": "#1a1b21",
+                        "inverse-surface": "#2f3036",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#f39461",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#7df5f4",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#faf8ff",
+                        "primary": "#00236f",
+                        "on-secondary-fixed": "#002020",
+                        "primary-container": "#1e3a8a",
+                        "on-tertiary-fixed": "#341100",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#007070",
+                        "on-secondary-fixed-variant": "#00504f",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#90a8ff",
+                        "inverse-on-surface": "#f1f0f7",
+                        "outline-variant": "#c5c5d3",
+                        "secondary-fixed-dim": "#5ed9d7",
+                        "surface-container-low": "#f4f3fa",
+                        "secondary-fixed": "#7df5f4",
+                        "surface": "#faf8ff",
+                        "tertiary": "#4b1c00",
+                        "on-primary-fixed": "#00164e",
+                        "inverse-primary": "#b6c4ff",
+                        "surface-variant": "#e3e1e9",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "primary-fixed": "#dce1ff",
+                        "error-container": "#ffdad6",
+                        "background": "#faf8ff",
+                        "outline": "#757682",
+                        "surface-dim": "#dad9e1",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-tint": "#4059aa",
+                        "secondary": "#006a69",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e9e7ef",
+                        "surface-container": "#eeedf4",
+                        "surface-container-highest": "#e3e1e9",
+                        "on-surface-variant": "#444651",
+                        "tertiary-container": "#6e2c00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "container-max": "1440px",
+                        "gutter": "24px",
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "3xl": "64px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "label-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        body { font-family: 'Geist', sans-serif; background-color: #faf8ff; color: #1a1b21; }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen overflow-hidden flex flex-col">
+<!-- TopNavBar (Suppressed for transactional screen, replaced with specialized header) -->
+<header class="flex justify-between items-center h-16 px-lg bg-surface border-b border-outline-variant shrink-0">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center rounded-full p-sm hover:bg-surface-container-low">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Create New Route</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Step 2 of 4</span>
+</div>
+</div>
+<!-- Progress Indicator -->
+<div class="hidden md:flex items-center gap-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+<span class="font-label-md text-label-md">Basic Info</span>
+</div>
+<div class="w-8 h-px bg-outline-variant"></div>
+<div class="flex items-center gap-2 text-primary font-bold">
+<div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-sm text-label-sm">2</div>
+<span class="font-label-md text-label-md">Define Path</span>
+</div>
+<div class="w-8 h-px bg-outline-variant"></div>
+<div class="flex items-center gap-2 text-on-surface-variant opacity-50">
+<div class="w-5 h-5 rounded-full border border-outline-variant flex items-center justify-center font-label-sm text-label-sm">3</div>
+<span class="font-label-md text-label-md">Add Stops</span>
+</div>
+<div class="w-8 h-px bg-outline-variant"></div>
+<div class="flex items-center gap-2 text-on-surface-variant opacity-50">
+<div class="w-5 h-5 rounded-full border border-outline-variant flex items-center justify-center font-label-sm text-label-sm">4</div>
+<span class="font-label-md text-label-md">Review</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-md py-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors">Save Draft</button>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Map Area -->
+<div class="flex-1 relative bg-surface-dim">
+<!-- Simulated Map Background -->
+<img alt="Map view" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply" data-alt="A high-altitude aerial view of a dense metropolitan city grid, styled as a modern digital map interface. The map features a minimalist palette with subtle slate and pale blue tones, reflecting an engineering-first aesthetic. Major arteries and urban textures are visible but abstracted for clarity. The lighting is bright and uniform, suitable for a light-mode corporate dashboard application. No decorative elements or heavy shadows distract from the functional layout." data-location="Manila" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2J2XimlPdvBZvPFnuHYaI-b4mK27fP3VNpC9IIbXaLKPrBTLJjdmPOEAQ-ND8dyMGpCFKSvfJXfWCVAett9_BmerTP6sR2UdCFDgxaulym2CmtCcQDmlQznXDUWzNuZz9YZwqg7_dAS4m3qeEGWR-LEd9R0S7gSdU5iHHL9yn-1X8dmNkr-d3Js4tr12CkvnNVrGt1FzxrNWyy4mYITc0E9t8V1Khhx_EcHUHu_k04CqQiqj8NqjufRxRswM_0OinJCZ74YgMTGM">
+<!-- Map Overlay Controls -->
+<div class="absolute top-md left-md flex flex-col gap-sm">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-sm shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+<div class="font-label-md text-label-md text-on-surface mb-xs font-bold">Step 2: Define Route Path</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant max-w-[280px]">Click on the map to draw your route path. Points will automatically snap to roads.</div>
+</div>
+</div>
+<!-- Drawing Tools (Right Aligned on Map) -->
+<div class="absolute top-md right-md flex flex-col gap-sm bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_4px_20px_rgba(15,23,42,0.05)] p-xs">
+<button class="p-2 text-on-surface bg-surface-container hover:bg-surface-variant rounded-md transition-colors flex items-center justify-center relative group" title="Draw Mode">
+<span class="material-symbols-outlined">edit</span>
+<span class="absolute right-full mr-2 bg-on-surface text-surface text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Draw Path</span>
+</button>
+<div class="w-full h-px bg-outline-variant my-1"></div>
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-md transition-colors flex items-center justify-center relative group">
+<span class="material-symbols-outlined">undo</span>
+<span class="absolute right-full mr-2 bg-on-surface text-surface text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Undo Last Point</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-md transition-colors flex items-center justify-center relative group">
+<span class="material-symbols-outlined">delete</span>
+<span class="absolute right-full mr-2 bg-on-surface text-surface text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Clear Path</span>
+</button>
+</div>
+<!-- Map Zoom Controls (Bottom Right) -->
+<div class="absolute bottom-md right-md flex flex-col gap-xs bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_4px_20px_rgba(15,23,42,0.05)] overflow-hidden">
+<button class="p-2 text-on-surface hover:bg-surface-container-low transition-colors flex items-center justify-center border-b border-outline-variant">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="p-2 text-on-surface hover:bg-surface-container-low transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</div>
+<!-- Info Sidebar (Right) -->
+<aside class="w-[320px] bg-surface border-l border-outline-variant flex flex-col z-10 shadow-[-4px_0_20px_rgba(15,23,42,0.02)]">
+<div class="p-lg flex-1 overflow-y-auto">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-lg">Route Details</h3>
+<div class="space-y-md">
+<!-- Preview Cards from Step 1 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Route Name</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold">EDSA Carousel Southbound</div>
+<div class="mt-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Transport Type</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">directions_bus</span>
+<span class="font-body-md text-body-md text-on-surface">City Bus</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Path Statistics</div>
+<div class="flex justify-between items-center py-sm border-b border-outline-variant">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Total Distance</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">0.0 km</span>
+</div>
+<div class="flex justify-between items-center py-sm border-b border-outline-variant">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Est. Duration</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">-- mins</span>
+</div>
+<div class="flex justify-between items-center py-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Waypoints</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">0</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<div class="p-lg border-t border-outline-variant bg-surface mt-auto">
+<div class="flex gap-md">
+<button class="flex-1 px-md py-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors">
+                        Back
+                    </button>
+<button class="flex-[2] px-md py-sm bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-xs">
+                        Next: Add Stops
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+</body></html>

@@ -31,7 +31,7 @@ async function loadData() {
         routes.value = routesData
         vehicleTypes.value = typesData
     } catch (e) {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load routes', life: 3000 })
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load routes' })
     } finally {
         loading.value = false
     }
@@ -53,7 +53,6 @@ function editRecord(data: any) {
 function confirmDeleteRow(data: any) {
     confirmDelete({
         message: `Are you sure you want to delete route "${data.name}"?`,
-        header: 'Confirm Delete',
         onAccept: async () => {
             await deleteRoute(data.id)
             loadData()
@@ -62,55 +61,98 @@ function confirmDeleteRow(data: any) {
     })
 }
 
-function clearFilter() {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-    }
-}
+const getIcon = (name: string) => {
+    const n = name?.toLowerCase() || '';
+    if (n.includes('bus')) return 'directions_bus';
+    if (n.includes('jeep')) return 'commute';
+    if (n.includes('ferry')) return 'directions_boat';
+    return 'route';
+};
 </script>
 
 <template>
-    <div class="card">
-        <div class="font-semibold text-xl mb-4">Transport Routes</div>
-        
-        <AppDataTable 
-            :value="routes" 
-            :loading="loading" 
-            v-model:filters="filters" 
-            :globalFilterFields="['name', 'code']"
-            @clear="clearFilter"
-            @refresh="loadData"
-        >
-            <template #actions>
-                <Button v-if="hasPermission('route.create')" label="New Route" icon="pi pi-plus" @click="openNew" />
-            </template>
-            
-            <Column field="code" header="Code" sortable></Column>
-            <Column field="name" header="Name" sortable></Column>
-            <Column field="vehicle_type.name" header="Type" sortable>
-                <template #body="{ data }">
-                    {{ data.vehicle_type?.name || '-' }}
-                </template>
-            </Column>
-            <Column field="color" header="Color">
-                <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                        <div :style="{ backgroundColor: data.color, width: '20px', height: '20px', borderRadius: '4px', border: '1px solid #ddd' }"></div>
-                        <span class="font-mono text-xs">{{ data.color }}</span>
-                    </div>
-                </template>
-            </Column>
-            <Column field="status" header="Status" sortable>
-                <template #body="{ data }">
-                    <Tag :value="data.status" :severity="data.status === 'active' ? 'success' : 'danger'" />
-                </template>
-            </Column>
-            <Column header="Actions" :exportable="false" style="min-width: 8rem">
-                <template #body="{ data }">
-                    <Button v-if="hasPermission('route.update')" icon="pi pi-pencil" rounded outlined class="mr-2" @click="editRecord(data)" />
-                    <Button v-if="hasPermission('route.delete')" icon="pi pi-trash" rounded outlined severity="danger" @click="confirmDeleteRow(data)" />
-                </template>
-            </Column>
-        </AppDataTable>
+    <div class="space-y-6 font-geist">
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-3xl font-bold text-on-surface">Transport Routes</h2>
+                <p class="text-on-surface-variant mt-1">Manage the logical paths and stop sequences of the network.</p>
+            </div>
+            <button v-if="hasPermission('route.create')" @click="openNew" class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-sm">add</span>
+                Create Route
+            </button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <AppDataTable 
+                :value="routes" 
+                :loading="loading" 
+                v-model:filters="filters" 
+                :globalFilterFields="['name', 'code']"
+                @clear="filters.global.value = null"
+                @refresh="loadData"
+            >
+                <template #empty> No routes found. </template>
+                
+                <Column field="code" header="Route ID" sortable>
+                    <template #body="{ data }">
+                        <span class="font-mono text-xs bg-surface-container px-2 py-1 rounded border border-outline-variant/50">{{ data.code || '-' }}</span>
+                    </template>
+                </Column>
+
+                <Column field="name" header="Route Name" sortable>
+                    <template #body="{ data }">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-8 rounded-full" :style="{ backgroundColor: data.color || '#ddd' }"></div>
+                            <span class="font-bold text-on-surface">{{ data.name }}</span>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="vehicle_type.name" header="Mode" sortable>
+                    <template #body="{ data }">
+                        <div class="flex items-center gap-2 text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[18px]">{{ getIcon(data.vehicle_type?.name) }}</span>
+                            <span class="text-sm">{{ data.vehicle_type?.name || '-' }}</span>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="status" header="Status" sortable>
+                    <template #body="{ data }">
+                        <span 
+                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-medium text-[10px] uppercase tracking-wider border"
+                            :class="data.status === 'active' ? 'bg-success/5 border-success/20 text-success' : 'bg-outline-variant/10 border-outline-variant text-on-surface-variant'"
+                        >
+                            {{ data.status }}
+                        </span>
+                    </template>
+                </Column>
+
+                <Column header="Actions" class="w-32 text-right">
+                    <template #body="{ data }">
+                        <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editRecord(data)" class="text-on-surface-variant hover:text-primary p-1.5 transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button v-if="hasPermission('route.delete')" @click="confirmDeleteRow(data)" class="text-on-surface-variant hover:text-error p-1.5 transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
+                        </div>
+                    </template>
+                </Column>
+            </AppDataTable>
+        </div>
     </div>
 </template>
+
+<style scoped>
+.font-geist {
+    font-family: 'Geist', sans-serif;
+}
+:deep(.p-datatable-tbody > tr) {
+    cursor: pointer;
+}
+</style>

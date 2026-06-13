@@ -35,12 +35,6 @@ const statuses = [
     { label: 'Inactive', value: 'inactive' }
 ]
 
-function initFilters() {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-    }
-}
-
 async function loadData() {
     loading.value = true
     try {
@@ -56,10 +50,6 @@ onMounted(async () => {
     await fetchProfile()
     loadData()
 })
-
-function clearFilter() {
-    initFilters()
-}
 
 function openNew() {
     isCreate.value = true
@@ -80,19 +70,10 @@ function editRecord(data: any) {
     dialog.value = true
 }
 
-function hideDialog() {
-    dialog.value = false
-}
-
 function validate() {
     errors.value = {}
     if (!form.value.name?.trim()) errors.value.name = 'Name is required'
-    if (!form.value.status) errors.value.status = 'Status is required'
     return Object.keys(errors.value).length === 0
-}
-
-function clearError(field: string) {
-    if (errors.value[field]) delete errors.value[field]
 }
 
 async function saveRecord() {
@@ -102,24 +83,15 @@ async function saveRecord() {
     try {
         if (isCreate.value) {
             await createVehicleType(form.value)
-            toast.add({ severity: 'success', summary: 'Created', detail: 'Vehicle type created', life: 2500 })
+            toast.add({ severity: 'success', summary: 'Created', detail: 'Transport type created' })
         } else {
             await updateVehicleType(form.value.id!, form.value)
-            toast.add({ severity: 'success', summary: 'Updated', detail: 'Vehicle type updated', life: 2500 })
+            toast.add({ severity: 'success', summary: 'Updated', detail: 'Transport type updated' })
         }
-        hideDialog()
+        dialog.value = false
         loadData()
-    } catch (e: any) {
-        const errs = e?.response?.data?.errors
-        if (errs) {
-            const m: Record<string, string> = {}
-            Object.keys(errs).forEach(k => {
-                m[k] = Array.isArray(errs[k]) ? errs[k][0] : String(errs[k])
-            })
-            errors.value = m
-        } else {
-            toast.add({ severity: 'error', summary: 'Error', detail: e?.response?.data?.message || 'Action failed', life: 3000 })
-        }
+    } catch (e) {
+        // Errors handled by interceptor
     } finally {
         dialogLoading.value = false
     }
@@ -127,73 +99,148 @@ async function saveRecord() {
 
 function confirmDeleteRow(data: any) {
     confirmDelete({
-        message: `Are you sure you want to delete "${data.name}"?`,
-        header: 'Confirm Delete',
+        message: `Are you sure you want to delete transport type "${data.name}"?`,
         onAccept: async () => {
             await deleteVehicleType(data.id)
             loadData()
         },
-        successMessage: 'Vehicle type deleted'
+        successMessage: 'Transport type deleted'
     })
 }
+
+const getIcon = (name: string) => {
+    const n = name.toLowerCase();
+    if (n.includes('bus')) return 'directions_bus';
+    if (n.includes('jeep')) return 'commute';
+    if (n.includes('ferry') || n.includes('boat')) return 'directions_boat';
+    if (n.includes('train') || n.includes('tram')) return 'tram';
+    if (n.includes('taxi')) return 'local_taxi';
+    return 'commute';
+};
 </script>
 
 <template>
-    <div class="card">
-        <div class="font-semibold text-xl mb-4">Vehicle Types</div>
-        
-        <AppDataTable 
-            :value="vehicleTypes" 
-            :loading="loading" 
-            :filters="filters" 
-            :globalFilterFields="['name']"
-            @clear="clearFilter"
-            @refresh="loadData"
-        >
-            <template #actions>
-                <Button v-if="hasPermission('vehicle-type.create')" label="New" icon="pi pi-plus" @click="openNew" />
-            </template>
-            
-            <Column field="name" header="Name" sortable></Column>
-            <Column field="description" header="Description">
-                <template #body="{ data }">
-                    {{ data.description || '-' }}
-                </template>
-            </Column>
-            <Column field="status" header="Status" sortable>
-                <template #body="{ data }">
-                    <Tag :value="data.status" :severity="data.status === 'active' ? 'success' : 'danger'" />
-                </template>
-            </Column>
-            <Column header="Actions" :exportable="false" style="min-width: 8rem">
-                <template #body="{ data }">
-                    <Button v-if="hasPermission('vehicle-type.update')" icon="pi pi-pencil" rounded outlined class="mr-2" @click="editRecord(data)" />
-                    <Button v-if="hasPermission('vehicle-type.delete')" icon="pi pi-trash" rounded outlined severity="danger" @click="confirmDeleteRow(data)" />
-                </template>
-            </Column>
-        </AppDataTable>
+    <div class="space-y-6 font-geist">
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-3xl font-bold text-on-surface">Transport Types</h2>
+                <p class="text-on-surface-variant mt-1">Classify and manage different modes of transportation.</p>
+            </div>
+            <button v-if="hasPermission('vehicle-type.create')" @click="openNew" class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-sm">add</span>
+                New Type
+            </button>
+        </div>
 
-        <Dialog v-model:visible="dialog" :header="isCreate ? 'New Vehicle Type' : 'Edit Vehicle Type'" :modal="true" :dismissableMask="true" class="p-fluid sm:w-[500px]">
+        <!-- Metrics Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div v-for="type in vehicleTypes.slice(0, 4)" :key="type.id" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex items-center gap-4 hover:border-primary/50 transition-colors">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-2xl">{{ getIcon(type.name) }}</span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-on-surface">{{ type.name }}</h3>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-on-surface-variant"><b class="text-on-surface">{{ type.routes_count || 0 }}</b> Routes</span>
+                        <span class="text-xs text-outline">•</span>
+                        <span class="text-xs text-on-surface-variant"><b class="text-on-surface">{{ type.vehicles_count || 0 }}</b> Units</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table Container -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <AppDataTable 
+                :value="vehicleTypes" 
+                :loading="loading" 
+                v-model:filters="filters" 
+                :globalFilterFields="['name']"
+                @clear="filters.global.value = null"
+                @refresh="loadData"
+            >
+                <template #empty> No transport types found. </template>
+                
+                <Column field="name" header="Type Name" sortable>
+                    <template #body="{ data }">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-outline text-[20px]">{{ getIcon(data.name) }}</span>
+                            <span class="font-medium text-on-surface">{{ data.name }}</span>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="routes_count" header="Active Routes" sortable class="text-center">
+                    <template #body="{ data }">
+                        <span class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">{{ data.routes_count || 0 }}</span>
+                    </template>
+                </Column>
+
+                <Column field="vehicles_count" header="Total Units" sortable class="text-center">
+                    <template #body="{ data }">
+                        <span class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">{{ data.vehicles_count || 0 }}</span>
+                    </template>
+                </Column>
+
+                <Column field="status" header="Status" sortable>
+                    <template #body="{ data }">
+                        <span 
+                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-medium text-[10px] uppercase tracking-wider"
+                            :class="data.status === 'active' ? 'bg-success/10 text-success' : 'bg-outline-variant/20 text-on-surface-variant'"
+                        >
+                            <span class="w-1 h-1 rounded-full" :class="data.status === 'active' ? 'bg-success' : 'bg-on-surface-variant'"></span>
+                            {{ data.status }}
+                        </span>
+                    </template>
+                </Column>
+
+                <Column header="Actions" class="w-32 text-right">
+                    <template #body="{ data }">
+                        <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editRecord(data)" class="text-on-surface-variant hover:text-primary p-1.5 transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button v-if="hasPermission('vehicle-type.delete')" @click="confirmDeleteRow(data)" class="text-on-surface-variant hover:text-error p-1.5 transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
+                        </div>
+                    </template>
+                </Column>
+            </AppDataTable>
+        </div>
+
+        <Dialog v-model:visible="dialog" :header="isCreate ? 'New Transport Type' : 'Edit Transport Type'" :modal="true" :dismissableMask="true" class="p-fluid sm:w-[500px]">
             <div class="flex flex-col gap-4 mt-4">
                 <div class="flex flex-col gap-2">
-                    <label for="name">Name</label>
-                    <InputText id="name" v-model="form.name" :class="{'p-invalid': errors.name}" @input="clearError('name')" />
+                    <label class="text-sm font-medium">Name</label>
+                    <InputText v-model="form.name" :class="{'p-invalid': errors.name}" placeholder="e.g. Modern Jeepney" />
                     <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label for="status">Status</label>
-                    <Select id="status" v-model="form.status" :options="statuses" optionLabel="label" optionValue="value" :class="{'p-invalid': errors.status}" @change="clearError('status')" />
-                    <small v-if="errors.status" class="p-error">{{ errors.status }}</small>
+                    <label class="text-sm font-medium">Status</label>
+                    <Select v-model="form.status" :options="statuses" optionLabel="label" optionValue="value" />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label for="description">Description</label>
-                    <Textarea id="description" v-model="form.description" rows="3" autoResize />
+                    <label class="text-sm font-medium">Description</label>
+                    <Textarea v-model="form.description" rows="3" autoResize placeholder="Optional details..." />
                 </div>
             </div>
             <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-                <Button label="Save" icon="pi pi-check" :loading="dialogLoading" @click="saveRecord" />
+                <div class="flex justify-end gap-2 pt-2">
+                    <Button label="Cancel" icon="pi pi-times" text @click="dialog = false" />
+                    <Button label="Save Type" icon="pi pi-check" :loading="dialogLoading" @click="saveRecord" />
+                </div>
             </template>
         </Dialog>
     </div>
 </template>
+
+<style scoped>
+.font-geist {
+    font-family: 'Geist', sans-serif;
+}
+:deep(.p-datatable-tbody > tr) {
+    cursor: pointer;
+}
+</style>
