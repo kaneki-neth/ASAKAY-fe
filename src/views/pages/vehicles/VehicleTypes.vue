@@ -108,8 +108,8 @@ function confirmDeleteRow(data: any) {
     })
 }
 
-const getIcon = (name: string) => {
-    const n = name.toLowerCase();
+const getIcon = (name?: string) => {
+    const n = (name || '').toLowerCase();
     if (n.includes('bus')) return 'directions_bus';
     if (n.includes('jeep')) return 'commute';
     if (n.includes('ferry') || n.includes('boat')) return 'directions_boat';
